@@ -1,18 +1,16 @@
 package com.ll.exam.qsl.user.entity;
 
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class SiteUser {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
