@@ -56,5 +56,17 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 .fetch();
     }
 
+    @Override
+    public List<SiteUser> searchQsl(String searchParam) {
+        return jpaQueryFactory
+                .select(siteUser)
+                .from(siteUser)
+                .where(
+                        siteUser.username.contains(searchParam)
+                                .or(siteUser.email.contains(searchParam)))
+                .orderBy(siteUser.id.asc())
+                .fetch();
+    }
+
 
 }

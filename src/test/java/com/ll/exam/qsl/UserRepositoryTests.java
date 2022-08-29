@@ -6,9 +6,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -102,4 +106,28 @@ class UserRepositoryTests {
         assertThat(u2.getEmail()).isEqualTo("user2@test.com");
         assertThat(u2.getPassword()).isEqualTo("{noop}1234");
     }
+
+    @Test
+    @DisplayName("검색")
+    void t7(){
+        List<SiteUser> users = userRepository.searchQsl("user1");
+
+        assertThat(users.size()).isEqualTo(1);
+
+        SiteUser u1 = users.get(0);
+
+        assertThat(u1.getId()).isEqualTo(1L);
+        assertThat(u1.getUsername()).isEqualTo("user1");
+        assertThat(u1.getEmail()).isEqualTo("user1@test.com");
+        assertThat(u1.getPassword()).isEqualTo("{noop}1234");
+    }
+
+//    @Test
+//    @DisplayName("검색 , page 리턴")
+//    void t8(){
+//        int itemsInAPage = 1; // 한 페이지에 보여줄 아이템 개수
+//        List<Sort.Order> sorts = new ArrayList<>();
+//        sorts.
+//        Pageable pageable = PageRequest.of(0, 1, Sort.by(sorts));
+//    }
 }
