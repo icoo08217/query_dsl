@@ -187,4 +187,17 @@ class UserRepositoryTests {
 
     }
 
+    @Test
+    @DisplayName("")
+    void t10() {
+        SiteUser u2 = userRepository.getQslUser(2L);
+
+        u2.addInterestKeywordContent("축구");
+        u2.addInterestKeywordContent("롤");
+        u2.addInterestKeywordContent("헬스");
+        u2.addInterestKeywordContent("헬스"); // 중복 등록은 무시가 되어야 한다.
+
+        userRepository.save(u2);
+    }
+
 }
