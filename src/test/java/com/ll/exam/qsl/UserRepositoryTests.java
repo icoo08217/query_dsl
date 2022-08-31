@@ -202,4 +202,16 @@ class UserRepositoryTests {
         userRepository.save(u2);
     }
 
+    @Test
+    @DisplayName("축구에 관심이 있는 회원을 검색할 수 있다.")
+    void t11() {
+        //테스트 케이스 추가
+        //구현
+        List<SiteUser> users = userRepository.getQslUserByKeyword("축구");
+
+        SiteUser user = users.get(0);
+
+        assertThat(user.getId()).isEqualTo(1L);
+
+    }
 }

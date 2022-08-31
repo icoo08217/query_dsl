@@ -14,9 +14,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
-import java.util.function.LongSupplier;
 
 import static com.ll.exam.qsl.user.entity.QSiteUser.siteUser;
+import static com.ll.exam.qsl.interestKeyword.entity.QInterestKeyword.interestKeyword;
 
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepositoryCustom {
@@ -106,6 +106,15 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(users, pageable, usersCountQuery::fetchOne);
+    }
+
+    @Override
+    public List<SiteUser> getQslUserByKeyword(String kw) {
+        return jpaQueryFactory
+                .selectFrom(siteUser)
+                .join(interestKeyword)
+                .on(interestKeyword.content.eq(kw))
+                .fetch();
     }
 
 
