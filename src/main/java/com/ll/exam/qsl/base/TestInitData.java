@@ -37,6 +37,7 @@ public class TestInitData {
 
             u2.addInterestKeywordContent("클라이밍");
             u2.addInterestKeywordContent("마라톤");
+            u2.addInterestKeywordContent("농구");
 
 
             userRepository.saveAll(Arrays.asList(u1, u2));
