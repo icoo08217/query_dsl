@@ -12,8 +12,12 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class InterestKeyword {
 
     @Id
+    @EqualsAndHashCode.Include
     String content;
+
+
 }
