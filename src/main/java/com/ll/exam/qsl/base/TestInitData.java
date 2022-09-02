@@ -22,23 +22,22 @@ public class TestInitData {
                     .username("user1")
                     .password("{noop}1234")
                     .email("user1@test.com")
-                    .interestKeywords(new HashSet<>())
                     .build();
 
             SiteUser u2 = SiteUser.builder()
                     .username("user2")
                     .password("{noop}1234")
                     .email("user2@test.com")
-                    .interestKeywords(new HashSet<>())
                     .build();
+
+            userRepository.saveAll(Arrays.asList(u1, u2));
 
             u1.addInterestKeywordContent("축구");
             u1.addInterestKeywordContent("농구");
 
             u2.addInterestKeywordContent("클라이밍");
             u2.addInterestKeywordContent("마라톤");
-//            u2.addInterestKeywordContent("농구");
-
+            u2.addInterestKeywordContent("농구");
 
             userRepository.saveAll(Arrays.asList(u1, u2));
         };

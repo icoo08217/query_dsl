@@ -12,23 +12,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ActiveProfiles("test") // 테스트 모드 활성화
 // 이렇게 클래스 @Transactional를 붙이면, 클래스의 각 테스트케이스에 전부 @Transactional 붙은 것과 동일
 // @Test + @Transactional 조합은 자동으로 롤백을 유발시킨다.
 @Transactional
+@ActiveProfiles("test") // 테스트 모드 활성화
 class UserRepositoryTests {
-
     @Autowired
     private UserRepository userRepository;
 
@@ -73,9 +71,9 @@ class UserRepositoryTests {
     }
 
     @Test
-    @DisplayName("모든 회원의 수")
+    @DisplayName("모든 회원 수")
     void t4() {
-        int count = userRepository.getQslCount();
+        long count = userRepository.getQslCount();
 
         assertThat(count).isGreaterThan(0);
     }
@@ -92,9 +90,9 @@ class UserRepositoryTests {
     }
 
     @Test
-    @DisplayName("전체 회원, 오래된 순서")
+    @DisplayName("전체회원, 오래된 순")
     void t6() {
-        List<SiteUser> users = userRepository.getQslUsersOrderById();
+        List<SiteUser> users = userRepository.getQslUsersOrderByIdAsc();
 
         SiteUser u1 = users.get(0);
 
@@ -112,18 +110,32 @@ class UserRepositoryTests {
     }
 
     @Test
-    @DisplayName("검색")
+    @DisplayName("검색, List 리턴")
     void t7() {
+        // 검색대상 : username, email
+        // user1 로 검색
         List<SiteUser> users = userRepository.searchQsl("user1");
 
         assertThat(users.size()).isEqualTo(1);
 
-        SiteUser u1 = users.get(0);
+        SiteUser u = users.get(0);
 
-        assertThat(u1.getId()).isEqualTo(1L);
-        assertThat(u1.getUsername()).isEqualTo("user1");
-        assertThat(u1.getEmail()).isEqualTo("user1@test.com");
-        assertThat(u1.getPassword()).isEqualTo("{noop}1234");
+        assertThat(u.getId()).isEqualTo(1L);
+        assertThat(u.getUsername()).isEqualTo("user1");
+        assertThat(u.getEmail()).isEqualTo("user1@test.com");
+        assertThat(u.getPassword()).isEqualTo("{noop}1234");
+
+        // user2 로 검색
+        users = userRepository.searchQsl("user2");
+
+        assertThat(users.size()).isEqualTo(1);
+
+        u = users.get(0);
+
+        assertThat(u.getId()).isEqualTo(2L);
+        assertThat(u.getUsername()).isEqualTo("user2");
+        assertThat(u.getEmail()).isEqualTo("user2@test.com");
+        assertThat(u.getPassword()).isEqualTo("{noop}1234");
     }
 
     @Test
@@ -144,7 +156,7 @@ class UserRepositoryTests {
         assertThat(usersPage.getNumber()).isEqualTo(page);
         assertThat(usersPage.getSize()).isEqualTo(pageSize);
 
-        List<SiteUser> users = usersPage.get().collect(toList());
+        List<SiteUser> users = usersPage.get().collect(Collectors.toList());
 
         assertThat(users.size()).isEqualTo(pageSize);
 
@@ -174,7 +186,7 @@ class UserRepositoryTests {
         assertThat(usersPage.getNumber()).isEqualTo(page);
         assertThat(usersPage.getSize()).isEqualTo(pageSize);
 
-        List<SiteUser> users = usersPage.get().collect(toList());
+        List<SiteUser> users = usersPage.get().collect(Collectors.toList());
 
         assertThat(users.size()).isEqualTo(pageSize);
 
@@ -184,41 +196,39 @@ class UserRepositoryTests {
         assertThat(u.getUsername()).isEqualTo("user1");
         assertThat(u.getEmail()).isEqualTo("user1@test.com");
         assertThat(u.getPassword()).isEqualTo("{noop}1234");
-
-
     }
 
     @Test
-    @DisplayName("")
-//    @Rollback(value = false)
+    @DisplayName("회원에게 관심사를 등록할 수 있다.")
     void t10() {
         SiteUser u2 = userRepository.getQslUser(2L);
 
         u2.addInterestKeywordContent("축구");
         u2.addInterestKeywordContent("롤");
         u2.addInterestKeywordContent("헬스");
-        u2.addInterestKeywordContent("헬스"); // 중복 등록은 무시가 되어야 한다.
+        u2.addInterestKeywordContent("헬스"); // 중복등록은 무시
 
         userRepository.save(u2);
     }
 
     @Test
-    @DisplayName("축구에 관심이 있는 회원을 검색할 수 있다.")
+    @DisplayName("축구에 관심이 있는 회원들 검색")
     void t11() {
-        //테스트 케이스 추가
-        //구현
-        List<SiteUser> users = userRepository.getQslUserByKeyword("축구");
+        List<SiteUser> users = userRepository.getQslUsersByInterestKeyword("축구");
 
-        SiteUser user = users.get(0);
+        assertThat(users.size()).isEqualTo(1);
 
-        assertThat(user.getId()).isEqualTo(1L);
+        SiteUser u = users.get(0);
 
+        assertThat(u.getId()).isEqualTo(1L);
+        assertThat(u.getUsername()).isEqualTo("user1");
+        assertThat(u.getEmail()).isEqualTo("user1@test.com");
+        assertThat(u.getPassword()).isEqualTo("{noop}1234");
     }
 
     @Test
-    @DisplayName("Spring Data JPA 기본, 축구에 관심이 있는 회원들 검색")
+    @DisplayName("no qsl, 축구에 관심이 있는 회원들 검색")
     void t12() {
-
         List<SiteUser> users = userRepository.findByInterestKeywords_content("축구");
 
         assertThat(users.size()).isEqualTo(1);
@@ -232,7 +242,7 @@ class UserRepositoryTests {
     }
 
     @Test
-    @DisplayName("u2 = 아이돌 , u1 = 팬 , u1은 u2의 팔로워이다.")
+    @DisplayName("u2=아이돌, u1=팬 u1은 u2의 팔로워 이다.")
     void t13() {
         SiteUser u1 = userRepository.getQslUser(1L);
         SiteUser u2 = userRepository.getQslUser(2L);
@@ -243,8 +253,8 @@ class UserRepositoryTests {
     }
 
     @Test
-    @DisplayName("본인은 본인을 팔로우 할 수 없다.")
-    @Rollback(value = false)
+    @DisplayName("본인이 본인을 follow 할 수 없다.")
+    @Rollback(false)
     void t14() {
         SiteUser u1 = userRepository.getQslUser(1L);
 
@@ -254,7 +264,7 @@ class UserRepositoryTests {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("특정회원의 follower들과 following들을 모두 알 수 있어야 한다.")
     @Rollback(false)
     void t15() {
         SiteUser u1 = userRepository.getQslUser(1L);
