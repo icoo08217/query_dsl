@@ -27,7 +27,7 @@ public class SiteUser {
     private String email;
 
     @Builder.Default
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user" , orphanRemoval = true)
     private Set<InterestKeyword> interestKeywords = new HashSet<>();
 
     @Builder.Default
@@ -52,5 +52,9 @@ public class SiteUser {
 
         // 내(follower)가 유튜버(following)를 구독한다.
         getFollowings().add(following);
+    }
+
+    public void removeInterestKeywordContent(String keywordContent) {
+        interestKeywords.remove(new InterestKeyword(this , keywordContent));
     }
 }
